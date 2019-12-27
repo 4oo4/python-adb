@@ -30,7 +30,7 @@ class CryptographySigner(adb_protocol.AuthSigner):
 
         with open(rsa_key_path) as rsa_prv_file:
             self.rsa_key = serialization.load_pem_private_key(
-                    rsa_prv_file.read(), None, default_backend())
+                    rsa_prv_file.read().encode('ascii'), None, default_backend())
 
     def Sign(self, data):
         return self.rsa_key.sign(
