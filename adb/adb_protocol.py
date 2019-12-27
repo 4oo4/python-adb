@@ -19,6 +19,7 @@ host side.
 
 import struct
 import time
+import re
 from io import BytesIO
 from adb import usb_exceptions
 
@@ -323,7 +324,7 @@ class AdbMessage(object):
                         'Unknown AUTH response: %s %s %s' % (arg0, arg1, banner))
 
                 # Do not mangle the banner property here by converting it to a string
-                signed_token = rsa_key.Sign(banner)
+                signed_token = rsa_key.Sign(banner) + b'\0'
                 msg = cls(
                     command=b'AUTH', arg0=AUTH_SIGNATURE, arg1=0, data=signed_token)
                 msg.Send(usb)
@@ -551,8 +552,11 @@ class AdbMessage(object):
                     stdout = stdout.split(b'\r\r\n')[1]
 
             # Strip delim if requested
-            # TODO: Handling stripping partial delims here - not a deal breaker the way we're handling it now
             if delim and strip_delim:
+                prefix_exp = re.compile(r'(?P<prefix>\d{1,3}\|)'+delim.decode('utf-8', errors='ignore'))
+                match = re.match(prefix_exp, stdout.decode('utf-8', errors='ignore'))
+                if match:
+                    stdout = stdout.replace(str(match.group('prefix') + delim).encode('utf-8'), b'')
                 stdout = stdout.replace(delim, b'')
 
             stdout = stdout.rstrip()
