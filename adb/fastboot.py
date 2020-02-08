@@ -354,6 +354,31 @@ class FastbootCommands(object):
         return self._SimpleCommand(b'flash', arg=partition, info_cb=info_cb,
                                    timeout_ms=timeout_ms)
 
+    def Update(self, source_file, timeout_ms=0, info_cb=DEFAULT_MESSAGE_CALLBACK):
+        """Flashes updates to partitions contained in factory image.zip
+
+        Args:
+          source_file: Factory image.zip
+        
+        Returns:
+          Response to a download request, normally nothing.
+        """
+        return self._SimpleCommand(b'update', arg=source_file, info_cb=info_cb,
+                                  timeout_ms=timeout_ms)
+
+    def UpdateWipe(self, source_file, timeout_ms=0, info_cb=DEFAULT_MESSAGE_CALLBACK):
+        """Flashes updates to partitions contained in factory image.zip, while wiping user data.
+        Use with caution!
+
+        Args:
+          source_file: Factory image.zip
+        
+        Returns:
+          Response to a download request, normally nothing.
+        """
+        return self._SimpleCommand(b'update -w', arg=source_file, info_cb=info_cb,
+                                  timeout_ms=timeout_ms)
+
     def Erase(self, partition, timeout_ms=None):
         """Erases the given partition.
 
